@@ -1,34 +1,25 @@
 package Java;
 
-import Java.MenuArchivo;
-import Java.MenuDirectorio;
-
 import java.io.File;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Uso: java Java.Main <fichero_o_directorio>");
-            return;
-        }
+    public static Scanner teclado = new Scanner(System.in);
 
-        File ruta = new File(args[0]);
-        if (!ruta.exists()) {
-            System.out.println("El fichero o directorio no existe: " + ruta.getPath());
-            return;
-        }
+    static void main() throws IOException {
+        System.out.print("Introduce la ruta del fichero o directorio: ");
+        String nombre = teclado.nextLine();
+        File fichero = new File(nombre);
 
-        try (Scanner scanner = new Scanner(System.in)) {
-            if (ruta.isDirectory()) {
-                System.out.println("La ruta indicada es un directorio.");
-                new MenuDirectorio(ruta, scanner).mostrar();
-            } else if (ruta.isFile()) {
-                System.out.println("La ruta indicada es un fichero.");
-                new MenuArchivo(ruta, scanner).mostrar();
-            } else {
-                System.out.println("La ruta existe, pero no es un fichero ni un directorio.");
-            }
+        if (!fichero.exists()) {
+            System.out.println("El fichero o directorio no existe.");
+        } else if (fichero.isDirectory()) {
+            System.out.println("La ruta indicada es un directorio.");
+            MenuDirectorio.mostrarMenu(fichero);
+        } else if (fichero.isFile()) {
+            System.out.println("La ruta indicada es un fichero.");
+            MenuArchivo.mostrarMenu(fichero);
         }
     }
 }
