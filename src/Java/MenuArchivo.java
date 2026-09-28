@@ -6,8 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Scanner;
 
 public class MenuArchivo {
@@ -19,7 +17,7 @@ public class MenuArchivo {
         this.scanner = scanner;
     }
 
-    public void mostrar() {
+    public void mostrar() throws IOException {
         int opcion;
 
         do {
@@ -59,32 +57,43 @@ public class MenuArchivo {
             return 0;
         }
 
-        try {
-            return Integer.parseInt(scanner.nextLine().trim());
-        } catch (NumberFormatException e) {
-            return -1;
+        String entrada = scanner.nextLine().trim();
+        if (entrada.equals("1")) {
+            return 1;
         }
+        if (entrada.equals("2")) {
+            return 2;
+        }
+        if (entrada.equals("3")) {
+            return 3;
+        }
+        if (entrada.equals("4")) {
+            return 4;
+        }
+        if (entrada.equals("0")) {
+            return 0;
+        }
+        return -1;
     }
 
-    private void listarArchivo(boolean numerarLineas) {
-        try (BufferedReader lector = new BufferedReader(new FileReader(archivo))) {
-            String linea;
-            int numeroLinea = 1;
+    private void listarArchivo(boolean numerarLineas) throws IOException {
+        BufferedReader lector = new BufferedReader(new FileReader(archivo));
+        String linea;
+        int numeroLinea = 1;
 
-            while ((linea = lector.readLine()) != null) {
-                if (numerarLineas) {
-                    System.out.println(numeroLinea + "- " + linea);
-                } else {
-                    System.out.println(linea);
-                }
-                numeroLinea++;
+        while ((linea = lector.readLine()) != null) {
+            if (numerarLineas) {
+                System.out.println(numeroLinea + "- " + linea);
+            } else {
+                System.out.println(linea);
             }
-        } catch (IOException e) {
-            System.out.println("No se ha podido leer el fichero: " + e.getMessage());
+            numeroLinea++;
         }
+
+        lector.close();
     }
 
-    private void encontrarTexto() {
+    private void encontrarTexto() throws IOException {
         System.out.print("Texto a buscar: ");
         if (!scanner.hasNextLine()) {
             return;
@@ -97,30 +106,28 @@ public class MenuArchivo {
         }
 
         boolean encontrado = false;
-        try (BufferedReader lector = new BufferedReader(new FileReader(archivo))) {
-            String linea;
-            int numeroLinea = 1;
+        BufferedReader lector = new BufferedReader(new FileReader(archivo));
+        String linea;
+        int numeroLinea = 1;
 
-            while ((linea = lector.readLine()) != null) {
-                int posicion = linea.indexOf(texto);
-                while (posicion != -1) {
-                    System.out.println(linea + " - linea " + numeroLinea + " posicion " + posicion);
-                    encontrado = true;
-                    posicion = linea.indexOf(texto, posicion + 1);
-                }
-                numeroLinea++;
+        while ((linea = lector.readLine()) != null) {
+            int posicion = linea.indexOf(texto);
+            while (posicion != -1) {
+                System.out.println(linea + " - linea " + numeroLinea + " posicion " + posicion);
+                encontrado = true;
+                posicion = linea.indexOf(texto, posicion + 1);
             }
-        } catch (IOException e) {
-            System.out.println("No se ha podido leer el fichero: " + e.getMessage());
-            return;
+            numeroLinea++;
         }
+
+        lector.close();
 
         if (!encontrado) {
             System.out.println("No se ha encontrado el texto indicado.");
         }
     }
 
-    private void anexarArchivo() {
+    private void anexarArchivo() throws IOException {
         System.out.print("Fichero que se desea anexar: ");
         if (!scanner.hasNextLine()) {
             return;
@@ -142,27 +149,21 @@ public class MenuArchivo {
             return;
         }
 
-        try {
-            if (archivo.getCanonicalFile().equals(archivoAnexar.getCanonicalFile())) {
-                System.out.println("No se puede anexar un fichero a si mismo.");
-                return;
-            }
-        } catch (IOException e) {
-            System.out.println("No se ha podido comprobar el fichero a anexar: " + e.getMessage());
+        if (archivo.getCanonicalFile().equals(archivoAnexar.getCanonicalFile())) {
+            System.out.println("No se puede anexar un fichero a si mismo.");
             return;
         }
 
-        try (InputStream entrada = new FileInputStream(archivoAnexar);
-             OutputStream salida = new FileOutputStream(archivo, true)) {
-            byte[] buffer = new byte[8192];
-            int bytesLeidos;
+        FileInputStream entrada = new FileInputStream(archivoAnexar);
+        FileOutputStream salida = new FileOutputStream(archivo, true);
+        byte[] buffer = new byte[8192];
+        int bytesLeidos;
 
-            while ((bytesLeidos = entrada.read(buffer)) != -1) {
-                salida.write(buffer, 0, bytesLeidos);
-            }
-            System.out.println("Fichero anexado correctamente.");
-        } catch (IOException e) {
-            System.out.println("No se ha podido anexar el fichero: " + e.getMessage());
+        while ((bytesLeidos = entrada.read(buffer)) != -1) {
+            salida.write(buffer, 0, bytesLeidos);
         }
+        entrada.close();
+        salida.close();
+        System.out.println("Fichero anexado correctamente.");
     }
 }

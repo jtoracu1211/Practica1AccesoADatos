@@ -47,11 +47,16 @@ public class MenuDirectorio {
         }
 
         String entrada = scanner.nextLine().trim();
-        try {
-            return Integer.parseInt(entrada);
-        } catch (NumberFormatException e) {
-            return -1;
+        if (entrada.equals("1")) {
+            return 1;
         }
+        if (entrada.equals("2")) {
+            return 2;
+        }
+        if (entrada.equals("0")) {
+            return 0;
+        }
+        return -1;
     }
 
     private void mostrarDirectorio() {
